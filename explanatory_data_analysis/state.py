@@ -54,3 +54,21 @@ table_quantiles.index = [f'{p * 100}%' for p in percentages]
 print("\n\t\tTable of Quantiles\n")
 print(table_quantiles.transpose())
 
+#Create a frequenct table with 10 bins 
+binnedPop = pd.cut(state['Population'], 10) 
+binnedPop.name = 'binnedPopulation' 
+
+#Concat column by column (axis=1) 
+binned_frame = pd.concat([state, binnedPop], axis=1) 
+binned_frame = binned_frame.sort_values(by='Population') 
+
+groups = [] 
+for group, subset in binned_frame.groupby(by='binnedPopulation', 
+    observed=False): 
+        groups.append({ 
+            'Range': group, 
+            'Count': len(subset), 
+            'States': ','.join(subset.Abbreviation), 
+        }) 
+        
+print(f'\n{pd.DataFrame(groups)}') 
