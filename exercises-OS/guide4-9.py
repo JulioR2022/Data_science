@@ -11,7 +11,7 @@ def z_score(x,mean, std):
 def percentile(z):
     return norm.cdf(z)
 
-def nomal_curve_with_tail(z, media= 0, std= 1):
+def nomal_curve_with_tail(z, media= 0, std= 1, lower_tail = True):
     x = np.linspace(media - 4 * std, media + 4 * std, 1000)
     y = norm.pdf(x, media, std)
 
@@ -19,7 +19,14 @@ def nomal_curve_with_tail(z, media= 0, std= 1):
     plt.title('Normal Distribution with Tail Area')
     plt.xlabel('Observations')
     plt.ylabel('Density')
-    x_fill = np.linspace(media - 4*std, media + z * std, 1000)
+
+    x_fill = 0
+    if lower_tail:
+        x_fill = np.linspace(media - 4*std, media + z * std, 1000)
+    
+    else:
+        x_fill = np.linspace(media + z * std, media + 4*std, 1000)
+
     y_fill = norm.pdf(x_fill, media, std)
     plt.fill_between(x_fill, y_fill, alpha=0.5, label='Tail Area',color='green')
 
