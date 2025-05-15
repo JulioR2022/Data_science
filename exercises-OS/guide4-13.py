@@ -1,9 +1,7 @@
 from scipy.stats import norm
 import numpy as np
 import matplotlib.pyplot as plt
-# This program calculates the tail area of a normal distribution given its mean and standard deviation.
-# It uses the z-score to find the percentile of a given value.
-# The program also plots the normal distribution curve with the tail area shaded.
+
 
 def z_score(x,mean, std):
     return (x - mean) / std
@@ -40,13 +38,15 @@ message = 'Enter the mean and the standard deviation of the normal distribution:
 mean, std = map(int,input(message).split())
 
 while True:
-    entry = input('Enter a value to calculate the percentile (or "exit" to quit): ')
+    entry = input('Enter a percentile (or "exit" to quit): ')
     if entry.lower() == 'exit':
         print('Exiting the program.')
         break
 
     entry = float(entry)
-    z = z_score(entry, mean, std)
+    observation = norm.ppf(entry, loc=mean, scale=std)
+    print(f'The observation corresponding to the percentile {entry} is: {observation:.4f}')
+    z = z_score(observation, mean, std)
     p = lower_tail_area(z)
     print(f'The lower tail area for {entry} is: {p:.4f}')
     nomal_curve_with_tail(z, mean, std)
