@@ -37,10 +37,15 @@ def nomal_curve_with_tail(z, media= 0, std= 1, lower_tail = True):
 
 
 message = 'Enter the mean and the standard deviation of the normal distribution: '
-mean, std = map(int,input(message).split())
+mean, std = map(float,input(message).split())
 
 while True:
     entry = input('Enter a value to calculate the percentile (or "exit" to quit): ')
+    lower_tail = input('Do you want to calculate the lower or upper tail area? (L/U): ')
+    if lower_tail.lower() == 'l':
+        lower_tail = True
+    else:
+        lower_tail = False
     if entry.lower() == 'exit':
         print('Exiting the program.')
         break
@@ -49,4 +54,5 @@ while True:
     z = z_score(entry, mean, std)
     p = lower_tail_area(z)
     print(f'The lower tail area for {entry} is: {p:.4f}')
-    nomal_curve_with_tail(z, mean, std)
+    print(f'The upper tail area for {entry} is: {(1 - p):.4f}')
+    nomal_curve_with_tail(z, mean, std, lower_tail)
