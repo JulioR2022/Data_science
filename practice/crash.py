@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
+import seaborn as sns
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -70,5 +70,18 @@ plt.tight_layout()
 plt.savefig('../figures/accidents_year_gender.png')
 plt.show()
 
+# Garante que o gênero seja apenas masculino ou feminino
+filtered_df = df[df['Gender'].isin(['Male', 'Female'])]
+# Gera um dataframe relacionando o tipo de acidente e o gênero
+cross_table = pd.crosstab(df['Dayweek'], filtered_df['Gender'])
+plt.figure(figsize=(12, 8))
+# annot -> exibe os valores na tabela
+# fmt -> formata os valores exibidos
+sns.heatmap(cross_table, annot=True, fmt='d', cmap='Blues')
+plt.title("Accidents per Week and Gender")
+plt.xlabel("Gender")
+plt.ylabel("Day of the Week")
+plt.savefig('../figures/heatmap_acc_weekdays_gender.png')
+plt.show()
 
 
