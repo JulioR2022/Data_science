@@ -37,6 +37,19 @@ plt.title("Descriptive Statistics of Numerical Columns", fontsize=16)
 plt.savefig(images_path + 'numerical_columns_description.png')
 plt.close()
 
+null_summary = pd.DataFrame({
+    'Coluna': df.columns,
+    'Quantidade': df.isnull().sum(axis=0).values,
+    'Porcentagem': (df.isnull().mean() * 100).round(2).values
+})
+null_summary.to_markdown(buf= images_path + 'sumario_nulos.md',index=False)
+
+#Lidando com os valores nulos
+df = df.dropna(subset = ['Time','Bus Involvement','Articulated Truck Involvement','Gender','Age Group'])
+#preenchendo os valores nulos com a media
+#print(df['Heavy Rigid Truck Involvement'].mode())
+df['Heavy Rigid Truck Involvement'] = df['Heavy Rigid Truck Involvement'].fillna('No')
+#print(df['Heavy Rigid Truck Involvement'].isnull().sum())
 
 # Verifica os anos existentes no DataFrame
 counts = df['Year'].value_counts().sort_index()
@@ -53,7 +66,6 @@ plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.tight_layout()  # Ajustar layout
 plt.savefig(images_path +'accidents_per_year.png')
 plt.close()
-
 
 male = df[df['Gender'] == 'Male']
 female = df[df['Gender'] == 'Female']
