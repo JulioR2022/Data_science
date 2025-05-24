@@ -10,7 +10,7 @@
 | Bus Involvement               |           22 |          0.04 |
 | Heavy Rigid Truck Involvement |        20515 |         38.82 |
 | Articulated Truck Involvement |           22 |          0.04 |
-| Speed Limit                   |          702 |          1.33 |
+| Speed Limit                   |         1393 |          2.64 |
 | Road User                     |            0 |          0    |
 | Gender                        |           27 |          0.05 |
 | Age                           |            0 |          0    |

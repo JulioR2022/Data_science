@@ -3,12 +3,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import chi2_contingency
+import random
 import warnings
 warnings.filterwarnings("ignore")
+
+def fill_with_mode(column = None):
+    """
+    Função para escolher a moda de uma série de dados.
+    """
+    fill_column = column.copy()
+    modas = column.mode()
+    if len(modas) == 1:
+        fill_column = fill_column.fillna(modas[0])
+        return fill_column
+    
+    fill_column = fill_column.fillna(random.choice(modas))
+    return fill_column
 
 filename = '../../dataset/crash_data.csv'
 images_path = 'data_visualization/'
 df = pd.read_csv(filename, low_memory=False)
+
+df['Speed Limit'] = df['Speed Limit'].replace(['-9', -9, '', ' '], np.nan)
+#Forçando erro para NaN
+df['Speed Limit'] = pd.to_numeric(df['Speed Limit'], errors='coerce')
 
 numerical_columns = df.select_dtypes(include=['int', 'float']).columns.tolist()
 categoric_columns = df.select_dtypes(include=['object']).columns.tolist()
@@ -46,10 +64,29 @@ null_summary.to_markdown(buf= images_path + 'sumario_nulos.md',index=False)
 
 #Lidando com os valores nulos
 df = df.dropna(subset = ['Time','Bus Involvement','Articulated Truck Involvement','Gender','Age Group'])
-#preenchendo os valores nulos com a media
-#print(df['Heavy Rigid Truck Involvement'].mode())
-df['Heavy Rigid Truck Involvement'] = df['Heavy Rigid Truck Involvement'].fillna('No')
-#print(df['Heavy Rigid Truck Involvement'].isnull().sum())
+df['Speed Limit'] = df['Speed Limit'].fillna(int(df['Speed Limit'].mean()))
+#preenchendo os valores nulos com a moda
+df['Heavy Rigid Truck Involvement'] = fill_with_mode(df['Heavy Rigid Truck Involvement'])
+df['National Remoteness Areas'] = fill_with_mode(df['National Remoteness Areas'])
+df['SA4 Name 2016'] = fill_with_mode(df['SA4 Name 2016'])
+df['National LGA Name 2017'] = fill_with_mode(df['National LGA Name 2017'])
+df['National Road Type'] = fill_with_mode(df['National Road Type'])
+
+
+#Usando boxplot para verificar outliers
+fig, ax = plt.subplots(1,2,figsize=(14, 7))
+
+ax[0].set_title('Boxplot of Age')
+ax[0].set_ylabel('Age')
+ax[0].boxplot(df['Age'])
+
+ax[1].set_title('Boxplot of Speed Limit')
+ax[1].set_ylabel('Speed Limit')
+ax[1].boxplot(df['Speed Limit'])
+
+plt.tight_layout()
+plt.savefig(images_path + 'boxplot_age_speed.png')
+plt.close()
 
 # Verifica os anos existentes no DataFrame
 counts = df['Year'].value_counts().sort_index()
@@ -72,7 +109,7 @@ female = df[df['Gender'] == 'Female']
 # Verificar relação entre acidentes e sexo
 acc_male = male['Year'].value_counts().sort_index().rename('Male')
 acc_female = female['Year'].value_counts().sort_index().rename('Female')
-acc_by_gender = pd.concat([acc_male, acc_female], axis=1).fillna(0)
+acc_by_gender = pd.concat([acc_male, acc_female], axis=1)
 
 plt.figure(figsize=(14, 7))
 
