@@ -85,7 +85,7 @@ null_summary.to_markdown(buf= images_path + 'sumario_nulos.md',index=False)
 
 # Lidando com valores nulos em 'Age', 'Cabin', 'Embarked'
 train = train.dropna(subset=['Embarked'])
-train['Age'] = train['Age'].fillna(int(train['Age'].mean()))
+train['Age'] = train['Age'].fillna(int(train['Age'].median()))
 train['Cabin'] = fill_with_mode(train['Cabin'])
 
 # Usando Boxplot para identificar outliers

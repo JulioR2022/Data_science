@@ -93,7 +93,7 @@ null_summary.to_markdown(buf= images_path + 'sumario_nulos.md',index=False)
 
 #Lidando com os valores nulos
 df = df.dropna(subset = ['Time','Bus Involvement','Articulated Truck Involvement','Gender','Age Group'])
-df['Speed Limit'] = df['Speed Limit'].fillna(int(df['Speed Limit'].mean()))
+df['Speed Limit'] = df['Speed Limit'].fillna(int(df['Speed Limit'].median()))
 #preenchendo os valores nulos com a moda
 df['Heavy Rigid Truck Involvement'] = fill_with_mode(df['Heavy Rigid Truck Involvement'])
 df['National Remoteness Areas'] = fill_with_mode(df['National Remoteness Areas'])
