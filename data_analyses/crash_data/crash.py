@@ -20,6 +20,35 @@ def fill_with_mode(column = None):
     fill_column = fill_column.fillna(random.choice(modas))
     return fill_column
 
+def calculate_outliers(df = None):
+    """
+    Função para calcular os outliers de um dataframe.
+    """
+    if df is None:
+        raise ValueError("O dataframe não pode ser None.")
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("O argumento df deve ser um dataframe do pandas.")
+    
+    numerical_columns = df.select_dtypes(include=['int','float']).columns.tolist()
+    outliers = []
+
+    for column in numerical_columns:
+        Q1 = df[column].quantile(0.25)
+        Q3 = df[column].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_limit = Q1 - 1.5 * IQR
+        upper_limit = Q3 + 1.5 * IQR
+        mask = (df[column] < lower_limit) | (df[column] > upper_limit)
+        qtd_outliers = mask.sum()
+        percentage_outliers = (qtd_outliers / df[column].size) * 100
+        outliers.append({
+            'Column': column,
+            'Qtd_outliers': qtd_outliers,
+            'Percentage_outliers': percentage_outliers,
+        })
+
+    return pd.DataFrame(outliers)
+
 filename = '../../dataset/crash_data.csv'
 images_path = 'data_visualization/'
 df = pd.read_csv(filename, low_memory=False)
@@ -87,6 +116,29 @@ ax[1].boxplot(df['Speed Limit'])
 plt.tight_layout()
 plt.savefig(images_path + 'boxplot_age_speed.png')
 plt.close()
+
+# Contagem de outliers
+# Boxplot deixa claro que não existem outliers, mas para questões de prática irei fazer a contagem
+df_outliers = df[['Age', 'Speed Limit']]
+df_outliers = calculate_outliers(df_outliers)
+
+figure, ax = plt.subplots(figsize=(14, 7))
+ax.axis('off')
+table = plt.table(
+    cellText=df_outliers.values,
+    colLabels=df_outliers.columns,
+    cellLoc='center',
+    loc='center',
+    colColours=['#f0f0f0'] * len(df_outliers.columns),
+    
+)
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1.2, 1.5)
+plt.title("Outliers in Numerical Variables", fontsize=16,pad = 5)
+plt.savefig(images_path + 'outliers_NumericalVariables.png')
+plt.close()
+
 
 # Verifica os anos existentes no DataFrame
 counts = df['Year'].value_counts().sort_index()
@@ -161,6 +213,11 @@ plt.title("Accidents per Week and Gender")
 plt.xlabel("Gender")
 plt.ylabel("Day of the Week")
 plt.savefig(images_path +'heatmap_acc_weekdays_gender.png')
+plt.close()
+
+sns.heatmap(df[['Age','Month','Speed Limit']].corr(), annot=True, fmt='.2f', cmap='coolwarm')
+plt.title("Correlation Heatmap")
+plt.savefig(images_path +'correlation_heatmap.png')
 plt.close()
 
 chi2, p_value, dof, expected = chi2_contingency(cross_table)
