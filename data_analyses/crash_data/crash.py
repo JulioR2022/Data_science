@@ -220,6 +220,75 @@ plt.title("Correlation Heatmap")
 plt.savefig(images_path +'correlation_heatmap.png')
 plt.close()
 
+
+# Accidents by Time of Day
+df['Hour'] = pd.to_datetime(df['Time'], errors='coerce').dt.hour
+accidents_by_hour = df['Hour'].value_counts().sort_index()
+
+plt.figure(figsize=(14, 7))
+accidents_by_hour.plot(kind='bar', color='skyblue', edgecolor='black')
+plt.title("Accidents by Hour of Day", fontsize=14)
+plt.xlabel("Hour of Day", fontsize=12)
+plt.ylabel("Number of Accidents", fontsize=12)
+plt.xticks(rotation=0)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig(images_path + 'accidents_by_hour.png')
+plt.close()
+
+# Accidents by Day of Week 
+
+day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+accidents_by_dayweek = df['Dayweek'].value_counts().reindex(day_order)
+
+plt.figure(figsize=(12, 7))
+accidents_by_dayweek.plot(kind='bar', color='lightcoral', edgecolor='black')
+plt.title("Total Accidents by Day of Week", fontsize=14)
+plt.xlabel("Day of Week", fontsize=12)
+plt.ylabel("Number of Accidents", fontsize=12)
+plt.xticks(rotation=45, ha='right')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig(images_path + 'total_accidents_by_dayweek.png')
+plt.close()
+
+# Accidents by Road Type
+accidents_by_road_type = df['National Road Type'].value_counts()
+
+plt.figure(figsize=(12, 8))
+sns.barplot(x=accidents_by_road_type.index, y=accidents_by_road_type.values, palette='viridis', edgecolor='black')
+plt.title("Accidents by National Road Type", fontsize=14)
+plt.xlabel("National Road Type", fontsize=12)
+plt.ylabel("Number of Accidents", fontsize=12)
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.savefig(images_path + 'accidents_by_road_type.png')
+plt.close()
+
+# Accidents by Age Group
+accidents_by_age_group = df['Age Group'].value_counts().sort_index()
+
+plt.figure(figsize=(12, 7))
+sns.barplot(x=accidents_by_age_group.index, y=accidents_by_age_group.values, palette='plasma', edgecolor='black')
+plt.title("Accidents by Age Group", fontsize=14)
+plt.xlabel("Age Group", fontsize=12)
+plt.ylabel("Number of Accidents", fontsize=12)
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.savefig(images_path + 'accidents_by_age_group.png')
+plt.close()
+
+# Scatter plot for Age vs Speed Limit
+plt.figure(figsize=(10, 7))
+sns.scatterplot(x='Age', y='Speed Limit', data=df, alpha=0.6)
+plt.title("Age vs. Speed Limit in Accidents", fontsize=14)
+plt.xlabel("Age", fontsize=12)
+plt.ylabel("Speed Limit", fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.tight_layout()
+plt.savefig(images_path + 'age_vs_speed_limit_scatterplot.png')
+plt.close()
+
 chi2, p_value, dof, expected = chi2_contingency(cross_table)
 print(f"Estatística Qui-Quadrado: {chi2:.2f}")
 print(f"Valor-p: {p_value:.4f}")
