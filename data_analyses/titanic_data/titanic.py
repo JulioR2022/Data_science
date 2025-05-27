@@ -86,7 +86,9 @@ null_summary.to_markdown(buf= images_path + 'sumario_nulos.md',index=False)
 # Lidando com valores nulos em 'Age', 'Cabin', 'Embarked'
 train = train.dropna(subset=['Embarked'])
 train['Age'] = train['Age'].fillna(int(train['Age'].median()))
-train['Cabin'] = fill_with_mode(train['Cabin'])
+
+# Devido à alta quantidade de valores ausentes em 'Cabin', vamos criar uma nova categoria 'Unknown' para esses casos. Pode ser interessante para análises futuras.
+train['Cabin'] = train['Cabin'].fillna('U')
 
 # Usando Boxplot para identificar outliers
 
@@ -172,3 +174,60 @@ plt.tight_layout()
 plt.savefig(images_path + 'pairplot_numerical_variables.png')
 plt.close()
 
+plt.figure(figsize=(10, 6))
+sns.histplot(data=train, x='Age', hue='Survived', kde=True, palette='viridis',
+             binwidth=5)
+plt.title('Distribuição de Idade por Status de Sobrevivência')
+plt.xlabel('Idade')
+plt.ylabel('Contagem')
+plt.legend(title='Sobreviveu', labels=['Não', 'Sim'])
+plt.savefig(images_path + 'age_survival_distribution.png')
+plt.close()
+
+#Survival Rate by Age Bins
+# Define age bins
+bins = [0, 12, 18, 35, 60, 80]
+labels = ['Criança', 'Adolescente', 'Jovem Adulto', 'Adulto', 'Idoso']
+train['AgeGroup'] = pd.cut(train['Age'], bins=bins, labels=labels, right=False)
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='AgeGroup', y='Survived', data=train, palette='viridis')
+plt.title('Taxa de Sobrevivência por Faixa Etária')
+plt.xlabel('Faixa Etária')
+plt.ylabel('Taxa de Sobrevivência')
+plt.savefig(images_path + 'survival_rate_by_age_bins.png')
+plt.tight_layout()
+plt.close()
+
+# Clean up the temporary 'AgeGroup' column if you don't need it further
+train = train.drop(columns=['AgeGroup'])
+
+# Preparando dados para análise de Deck
+train['Deck'] = train['Cabin'].apply(lambda x: x[0])
+deck_order = sorted(train['Deck'].unique())
+
+deck_survival_rate = train.groupby('Deck')['Survived'].mean().reset_index()
+deck_survival_rate.columns = ['Deck', 'Taxa']
+
+deck_counts = train['Deck'].value_counts().reindex(deck_order)
+deck_df = pd.DataFrame({'Deck': deck_counts.index, 'Count': deck_counts.values})
+
+# Distribuição de Passageiros por Deck
+plt.figure(figsize=(10, 6))
+sns.barplot(data=deck_df,x='Deck', y='Count',hue='Deck',legend=False) 
+plt.title('Distribuição de Passageiros por Deck')
+plt.xlabel('Deck')
+plt.ylabel('Número de Passageiros')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.savefig(images_path + 'passenger_distribution_by_deck.png')
+plt.close()
+
+# Taxa de Sobrevivência por Deck
+plt.figure(figsize=(10, 6))
+sns.barplot(data= deck_survival_rate,x='Deck', y='Taxa', hue='Deck',legend=False)
+plt.title('Taxa de Sobrevivência por Deck')
+plt.xlabel('Deck')
+plt.ylabel('Taxa de Sobrevivência')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.savefig(images_path + 'survival_rate_by_deck.png')
+plt.close()
