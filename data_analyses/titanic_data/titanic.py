@@ -127,7 +127,8 @@ plt.close()
 
 train_dummies = pd.get_dummies(train, columns=['Sex'], drop_first=True) 
 train['Sex'] = train_dummies['Sex_male']
-train['Pclass'] = train['Pclass'].map({1: 1, 2: 2, 3: 3})
+
+
 # Usando Seaborn para visualizar a distribuição dos dados
 fig, ax = plt.subplots(2,2,figsize=(20, 14))
 sns.histplot(train['Age'], ax=ax[0,0], kde=True)
@@ -249,6 +250,7 @@ encoder = LabelEncoder()
 
 df_regression = train.drop(['PassengerId','Name','Ticket','Cabin', 'Embarked'],axis=1)
 df_regression['Deck'] = encoder.fit_transform(df_regression['Deck'])
+df_regression['Pclass'] = encoder.fit_transform(df_regression['Pclass'])
 
 x = df_regression.drop(['Survived'], axis=1)
 y = df_regression['Survived']
