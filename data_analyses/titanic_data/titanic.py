@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import random
+from sklearn.cluster import KMeans
 from scipy.stats import chi2_contingency
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
@@ -288,3 +290,24 @@ plt.close()
 print(precision_score(y_test,y_pred))
 print(recall_score(y_test,y_pred))
 print(f1_score(y_test,y_pred))
+
+#Klusterização
+
+wcss = []
+for i in range(1,15):
+    kmeans = KMeans(n_clusters = i, init = 'k-means++', random_state = 42)
+    kmeans.fit(df_regression)
+    wcss.append(kmeans.inertia_)
+plt.plot(range(1, 15), wcss)
+plt.title('The Elbow Method')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS')
+plt.savefig(images_path + 'elbow.png')
+plt.close()
+
+kmeans = KMeans(n_clusters = 4, init = 'k-means++', random_state = 42)
+y_kmeans = kmeans.fit_predict(df_regression)
+df_regression['cluster'] = y_kmeans
+sns.scatterplot(data = df_regression, x = 'Fare', y =  'Deck', hue = 'cluster')
+plt.savefig(images_path + 'Klusters.png')
+plt.close()
