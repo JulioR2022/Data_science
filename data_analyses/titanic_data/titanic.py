@@ -2,7 +2,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import random
+from scipy.stats import chi2_contingency
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve
+from sklearn.metrics import f1_score, recall_score, precision_score
 
 def fill_with_mode(column = None):
     """
@@ -116,6 +122,12 @@ sns.boxplot(x=train['Parch'], ax=ax[1,1])
 plt.savefig(images_path + 'boxplot_sns.png')
 plt.close()
 
+
+#Tratando variaveis categoricas
+
+train_dummies = pd.get_dummies(train, columns=['Sex'], drop_first=True) 
+train['Sex'] = train_dummies['Sex_male']
+train['Pclass'] = train['Pclass'].map({1: 1, 2: 2, 3: 3})
 # Usando Seaborn para visualizar a distribuição dos dados
 fig, ax = plt.subplots(2,2,figsize=(20, 14))
 sns.histplot(train['Age'], ax=ax[0,0], kde=True)
@@ -231,3 +243,46 @@ plt.ylabel('Taxa de Sobrevivência')
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.savefig(images_path + 'survival_rate_by_deck.png')
 plt.close()
+
+# Regressão Linear
+encoder = LabelEncoder()
+
+df_regression = train.drop(['PassengerId','Name','Ticket','Cabin', 'Embarked'],axis=1)
+df_regression['Deck'] = encoder.fit_transform(df_regression['Deck'])
+
+x = df_regression.drop(['Survived'], axis=1)
+y = df_regression['Survived']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
+
+sd = StandardScaler()
+x_train = sd.fit_transform(x_train)
+x_test = sd.fit_transform(x_test)
+
+classifier = LogisticRegression(random_state=0)
+classifier.fit(x_train, y_train)
+
+y_pred = classifier.predict(x_test)
+
+accuracy_score(y_test, y_pred)
+conf_m = confusion_matrix(y_test, y_pred)
+
+
+sns.heatmap(conf_m, annot=True)
+plt.savefig(images_path + 'confusion_matrix')
+plt.close()
+
+
+# Plotar roc curv
+prob = classifier.predict_proba(x_test)
+prob = prob[:,1]
+fpr, tpr, trash = roc_curve(y_test, prob)
+
+plt.plot(fpr, tpr)
+plt.title('Curva ROC')
+plt.savefig(images_path + 'roc_curve.png')
+plt.close()
+
+print(precision_score(y_test,y_pred))
+print(recall_score(y_test,y_pred))
+print(f1_score(y_test,y_pred))
