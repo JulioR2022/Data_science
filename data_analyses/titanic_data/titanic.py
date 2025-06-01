@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve
 from sklearn.metrics import f1_score, recall_score, precision_score
 
@@ -310,4 +311,19 @@ y_kmeans = kmeans.fit_predict(df_regression)
 df_regression['cluster'] = y_kmeans
 sns.scatterplot(data = df_regression, x = 'Fare', y =  'Deck', hue = 'cluster')
 plt.savefig(images_path + 'Klusters.png')
+plt.close()
+
+#Decision Tree
+modelo = DecisionTreeClassifier(max_depth=10, max_leaf_nodes=20, criterion='gini')
+
+modelo.fit(x_train, y_train)
+y_pred = modelo.predict(x_test)
+
+print(accuracy_score(y_test, y_pred))
+
+conf_m = confusion_matrix(y_test, y_pred)
+sns.heatmap(conf_m, annot=True)
+plt.xlabel('y_test')
+plt.ylabel('y_pred')
+plt.savefig(images_path + 'decision_tree_confMatrix')
 plt.close()
