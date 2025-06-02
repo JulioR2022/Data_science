@@ -10,6 +10,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve
 from sklearn.metrics import f1_score, recall_score, precision_score
 
@@ -327,3 +328,17 @@ plt.xlabel('y_test')
 plt.ylabel('y_pred')
 plt.savefig(images_path + 'decision_tree_confMatrix')
 plt.close()
+
+#Random Forest
+modelo = RandomForestClassifier(max_depth=10, max_leaf_nodes=20,n_estimators=10, random_state=42)
+
+modelo.fit(x_train, y_train)
+y_pred = modelo.predict(x_test)
+
+print(accuracy_score(y_test, y_pred))
+
+conf_m = confusion_matrix(y_test, y_pred)
+sns.heatmap(conf_m, annot=True)
+plt.xlabel('y_test')
+plt.ylabel('y_pred')
+plt.savefig(images_path +'random_forest.png')
